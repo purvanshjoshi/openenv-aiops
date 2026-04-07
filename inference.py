@@ -68,7 +68,10 @@ def run_task(task_name: str):
             
         history.append({"role": "assistant", "content": raw_action})
         
-        obs, reward, done, _ = env.step(action)
+        obs = env.step(action)
+        reward = obs.reward or 0.0
+        done = obs.done
+        
         rewards.append(reward)
         
         log_step(step=steps_taken, action=raw_action, reward=reward, done=done, error=error)

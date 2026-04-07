@@ -1,7 +1,8 @@
-from pydantic import BaseModel, Field
+from pydantic import Field
 from typing import Dict, Any, Optional
+from openenv.core.env_server.types import Action, Observation
 
-class AIOpsAction(BaseModel):
+class AIOpsAction(Action):
     command: str = Field(
         ..., 
         description="The AIOps tool to execute (e.g., 'query_billing', 'refund', 'query_data', 'patch_data', 'analyze_fleet', 'terminate_node', 'resolve')"
@@ -11,7 +12,7 @@ class AIOpsAction(BaseModel):
         description="Key-value parameters corresponding to the command"
     )
 
-class AIOpsObservation(BaseModel):
+class AIOpsObservation(Observation):
     incident_id: Optional[str] = Field(None, description="Current priority incident ID")
     incident_severity: Optional[str] = Field(None, description="P1, P2, P3")
     incident_description: str = Field("", description="Details of the alert or ticket")

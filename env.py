@@ -1,7 +1,8 @@
-from typing import Tuple, Dict, Any
+from typing import Tuple, Dict, Any, Optional
 from models import AIOpsAction, AIOpsObservation
+from openenv.core.env_server.interfaces import Environment
 
-class AIOpsEnv:
+class AIOpsEnv(Environment):
     def __init__(self):
         self._current_obs = AIOpsObservation()
         self._task_name = "easy"
@@ -51,7 +52,7 @@ class AIOpsEnv:
     def close(self):
         self._done = True
 
-    def step(self, action: AIOpsAction) -> Tuple[AIOpsObservation, float, bool, Dict[str, Any]]:
+    def step(self, action: AIOpsAction, timeout_s: Optional[float] = None, **kwargs: Any) -> AIOpsObservation:
         self._step_count += 1
         reward = 0.0
         output = f"Tool {action.command} executed. No effect."
@@ -131,7 +132,7 @@ class AIOpsEnv:
 
         self._current_obs.telemetry_output = output
         self._total_reward += reward
+        self._current_obs.reward = reward
+        self._current_obs.done = self._done
 
-        # Bound overall episode reward between bounds if returning final, but in OpenEnv we return immediate step reward.
-        # But wait, grades are 0.0 - 1.0. We should clamp returned reward or just return incremental. Requirements say returning incremental is perfectly fine.
-        return self._current_obs, reward, self._done, {}
+        return self._current_obs
