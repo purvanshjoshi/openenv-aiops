@@ -52,6 +52,80 @@ Unlike heuristic string-matching or unpredictable LLM-as-a-Judge evaluations, th
 
 ---
 
+## 🧠 Systems Architecture Flow
+
+```mermaid
+graph TD
+    A["🤖 LLM / Autonomous Agent"] -- "POST /reset" --> B["FastAPI Environment App"]
+    A -- "POST /step (AIOpsAction)" --> B
+    B --> C{"OpenEnv Validations"}
+    C --> D["Task Routing Engine"]
+    
+    D -->|Easy| E["Support CRM State"]
+    D -->|Medium| F["Data Redaction State"]
+    D -->|Hard| G["FinOps Compute State"]
+    
+    E --> H["Compute Deterministic Reward"]
+    F --> H
+    G --> H
+    
+    H -- "AIOpsObservation & Reward" --> B
+    B -- "JSON Response" --> A
+```
+
+---
+
+## 🔬 Live Telemetry Testing Results
+
+The environment validates autonomously over live deployments. Below are partial outputs proving the deterministic reward distribution matching the evaluation requirements. 
+
+### ▶️ Easy (CRM Refund)
+```text
+[Client] Sending POST /reset (Task: 'easy')
+[Server Response] Incident: "Customer Ticket: 'I was billed twice for my plan this month. Please refund the duplicate $50 immediately.'"
+
+[Client] Sending POST /step (action: query_billing)
+[Server Telemetry]: {"status": "duplicate_detected"}
+
+[Client] Sending POST /step (action: refund $50)
+[Server Reward]: +0.8 
+
+[Client] Sending POST /step (action: resolve)
+[Server Reward]: +0.2 | Done: True
+```
+
+### ▶️ Medium (PII Redaction)
+```text
+[Client] Sending POST /reset (Task: 'medium')
+[Server Response] Incident: "Compliance Alert: PII leaked in record. Redact patient name and SSN."
+
+[Client] Sending POST /step (action: query_data)
+[Server Telemetry]: {"data": "Patient John Doe (000-11-2222) arrived at 9AM."}
+
+[Client] Sending POST /step (action: patch_data '[REDACTED]')
+[Server Reward]: +0.8 | [Telemetry]: {"status": "success", "msg": "Record anonymized."}
+
+[Client] Sending POST /step (action: resolve)
+[Server Reward]: +0.2 | Done: True
+```
+
+### ▶️ Hard (FinOps zombie node termination)
+```text
+[Client] Sending POST /reset (Task: 'hard')
+[Server Response] Incident: "FinOps Alert: Burn rate exceeded 90%. Identify completely idle 'zombie' nodes in compute cluster and terminate them."
+
+[Client] Sending POST /step (action: analyze_fleet)
+[Server Telemetry]: {"node-1": {"status": "production", "cpu": "85%"}, "node-2": {"status": "idle", "cpu": "0%"}}
+
+[Client] Sending POST /step (action: terminate_node 'node-2')
+[Server Reward]: +0.8 | [Telemetry]: {"status": "success", "msg": "Node node-2 terminated."}
+
+[Client] Sending POST /step (action: resolve)
+[Server Reward]: +0.2 | Done: True
+```
+
+---
+
 ## ⚙️ Submission Toolkit
 
 ### Evaluation Script
