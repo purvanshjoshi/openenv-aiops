@@ -5,10 +5,17 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from openenv.core.env_server.http_server import create_app
 from env import AIOpsEnv
+from models import AIOpsAction, AIOpsObservation
 import uvicorn
 
+def create_aiops_env() -> AIOpsEnv:
+    return AIOpsEnv()
+
 app = create_app(
-    EnvironmentClass=AIOpsEnv,
+    create_aiops_env,
+    AIOpsAction,
+    AIOpsObservation,
+    env_name="aiops_omni",
     max_concurrent_envs=1
 )
 
