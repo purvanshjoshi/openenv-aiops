@@ -7,44 +7,68 @@ sdk: docker
 pinned: false
 license: mit
 ---
-# AIOps Omni-Environment
 
-## Overview
-The AIOps Omni-Environment is a production-grade realistic benchmark for evaluating autonomous RL agents on critical operations (AIOps). Instead of evaluating simple games, the agent takes on the role of an SRE solving Tier-3 support desk operational tickets directly. 
+# 🌐 Enterprise AIOps Omni-Environment
 
-## Real-world Utility
-This environment solves for three distinct but crucial enterprise categories:
-1. **FinOps (Cost Optimization)**: Identifying idle infrastructure and scaling it down safely.
-2. **Data Governance**: Scrubbing Public PII leaks via database patching.
-3. **Customer Ops**: Correctly identifying duplicate billing incidents and issuing real-time refunds via API interfaces.
+[![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/purvansh01/openenv-aiops)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## Task Descriptions (Difficulty scaled)
-- **Easy (`task='easy'`)**: Issue a strict $50 API refund based on customer transaction ledgers.
-- **Medium (`task='medium'`)**: Scan data buckets, sanitize a PII record down to `[REDACTED]` tokens while minimizing false positives/negatives.
-- **Hard (`task='hard'`)**: Process heterogeneous compute metrics arrays to kill single `0%` CPU zombie nodes WITHOUT accidentally terminating `95%` CPU production nodes.
+**A production-grade, highly-deterministic OpenEnv sandbox designed to evaluate autonomous agents on complex, real-world Cloud Infrastructure, FinOps, and Data Governance workflows.**
 
-## Action & Observation Spaces
-### Observation (AIOpsObservation)
-Strict Pydantic models containing:
-- `incident_description` (Trigger notification)
-- `telemetry_output` (Stringified JSON payload returned from backend logic)
+---
 
-### Action (AIOpsAction)
-Tool execution models containing:
-- `command`: `str` specifying tools like `query_billing`, `terminate_node`, `patch_data`, `resolve`.
-- `parameters`: `dict` mapping parameters like `{"node_id": "req-2"}` securely.
+## 🎯 The Vision: Beyond "Toy Problems"
+The Reinforcement Learning ecosystem suffers from an oversaturation of "toy problems" (e.g., Tic-Tac-Toe, Wordle, block-stacking). While these are useful for fundamental agent training, they fail to benchmark an LLM's capacity in high-stakes, real-world enterprise environments.
 
-## Setup Instructions
+The **Enterprise AIOps Omni-Environment** bridges this gap. It drops the AI agent into the seat of a Tier-3 Site Reliability Engineer (SRE) handling live IT alert tickets.
+
+### Real-World Utility Domains:
+1. **FinOps (Cost Optimization):** Agents must securely identify and terminate idle data center compute nodes without risking production uptime.
+2. **Data Governance (Compliance):** Agents must detect PII/PHI (Protected Health Information) leaks in a mock database and securely sanitize the payloads programmatically.
+3. **Customer Operations:** Agents are deployed to investigate cross-referenced CRM billing ledgers to process exact-dollar dynamic refunds via an API interface.
+
+---
+
+## 🏗️ OpenEnv Architecture
+
+This repository strictly implements the **OpenEnv (`openenv-core`) Protocol**, deploying a lightweight, standalone `FastAPI` instance fully containerized for Hugging Face Spaces.
+
+- **Strict Type Safety:** Driven by Pydantic models (`AIOpsAction`, `AIOpsObservation`), ensuring robust validation of agent inputs.
+- **RESTful Endpoints:** Exposes compliant `/reset`, `/step`, and `/state` operations matching Hugging Face evaluation architectures.
+- **Stateless Stability:** `max_concurrent_envs=1` configured securely mitigating `openenv` wrapper collisions over WebSocket/HTTP routing.
+- **HF Native Container:** Executes as non-root `user 1000` via a stripped-down `Python 3.10-slim` Debian build over Port `7860`.
+
+---
+
+## 🚀 Tasks & Deterministic Grading
+
+Unlike heuristic string-matching or unpredictable LLM-as-a-Judge evaluations, this environment utilizes programmatic grading schemas. Agents earn fractional rewards (`0.0 - 1.0` range bounds) for progressive actions and hard penalties (`-1.0`) for catastrophic operational failures.
+
+| Difficulty | Task Domain | Objective | Reward Schema |
+| :--- | :--- | :--- | :--- |
+| **Easy** | CRM Ops | Query a user's ledger -> Identify duplicate transaction -> Refund $50 API call. | `+0.8` (Refund Sent), `+0.2` (Resolve Ticket), `-0.5` (Wrong Refund). |
+| **Medium**| Data Gov | Locate PHI String -> Patch record via regex-style sanitization to `[REDACTED]`. | `+0.8` (Data Sanitized), `+0.2` (Resolve Ticket), `-0.5` (Missed PII). |
+| **Hard** | FinOps | Analyze Fleet array -> Detect `0%` CPU node -> `terminate_node("node-2")`. | `+0.8` (Node Terminated), `+0.2` (Resolve), `-1.0` (Kill Production). |
+
+---
+
+## ⚙️ Submission Toolkit
+
+### Evaluation Script
+The root contains the `inference.py` evaluator baseline. It is mapped to automatically orchestrate across the agent objectives using `OpenAI` client tools.
+- Strict mapping to STDOUT specifications: `[START]`, `[STEP]`, and `[END]`.
+
+### Local Testing
 ```bash
 pip install -r requirements.txt
 python inference.py
 ```
 
-## Running Docker
+### Docker Manual Boot
 ```bash
 docker build -t openenv-aiops .
-docker run -p 8000:8000 openenv-aiops
+docker run -p 8000:7860 openenv-aiops
 ```
 
-## Baseline Validation
-The `inference.py` runs standard `gpt-4o-mini` evaluation across all 3 objectives producing 100% reproducibility natively. OpenEnv metadata handles Docker routing via FastApi (`server:app`).
+---
+*Built for the Meta OpenEnv Agentic AI Hackathon.*
