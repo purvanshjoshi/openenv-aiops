@@ -1,0 +1,6 @@
+spec_version: 1
+name: aiops_omni
+type: space
+runtime: fastapi
+app: server:app
+port: 8000
