@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "openenv-aiops"
+version = "1.0.0"
+description = "Enterprise AIOps Omni-Environment"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "openenv-core",
+    "fastapi",
+    "uvicorn[standard]",
+    "pydantic",
+    "openai",
+    "requests"
+]
