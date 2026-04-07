@@ -1,3 +1,12 @@
+---
+title: OpenEnv AIOps
+emoji: 🚀
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+pinned: false
+license: mit
+---
 # AIOps Omni-Environment
 
 ## Overview
