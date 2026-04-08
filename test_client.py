@@ -11,14 +11,12 @@ def test_medium():
     
     res = s.post(f"{BASE_URL}/reset", json={"task_name": "medium"})
     data = res.json()
-    print(f"DEBUG Reset Response: {data}")
     total_reward = data.get("reward", 0.0)
     print(f"[Reset Reward]: {total_reward}")
     
     print("\n[Client] Sending POST /step (query_data)")
     res = s.post(f"{BASE_URL}/step", json={"action": {"command": "query_data", "parameters": {}}})
     step1 = res.json()
-    print(f"DEBUG Step 1 Response: {step1}")
     total_reward += step1.get("reward", 0.0)
     print(f"[Step 1 Reward]: {step1.get('reward')} | Cumulative: {total_reward:.2f}")
     

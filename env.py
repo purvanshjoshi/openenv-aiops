@@ -26,8 +26,6 @@ class AIOpsEnv(Environment):
         _REFUND_DONE = False
         self._total_reward = 0.05
         
-        print(f"DEBUG: Reset task to {_LAST_TASK}")
-        
         self._current_obs = AIOpsObservation(
             system_health_score=100.0,
             budget_remaining=10000.0,
@@ -65,7 +63,6 @@ class AIOpsEnv(Environment):
         args = action.parameters
 
         global _DB_PATCHED, _INST_TERM, _REFUND_DONE
-        print(f"DEBUG Step: task={_LAST_TASK} cmd={cmd}")
         
         # Easy Task: Billing
         if "easy" in _LAST_TASK:
