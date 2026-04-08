@@ -46,9 +46,9 @@ Unlike heuristic string-matching or unpredictable LLM-as-a-Judge evaluations, th
 
 | Difficulty | Task Domain | Objective | Reward Schema |
 | :--- | :--- | :--- | :--- |
-| **Easy** | CRM Ops | Query a user's ledger -> Identify duplicate transaction -> Refund $50 API call. | `+0.8` (Refund Sent), `+0.2` (Resolve Ticket), `-0.5` (Wrong Refund). |
-| **Medium**| Data Gov | Locate PHI String -> Patch record via regex-style sanitization to `[REDACTED]`. | `+0.8` (Data Sanitized), `+0.2` (Resolve Ticket), `-0.5` (Missed PII). |
-| **Hard** | FinOps | Analyze Fleet array -> Detect `0%` CPU node -> `terminate_node("node-2")`. | `+0.8` (Node Terminated), `+0.2` (Resolve), `-1.0` (Kill Production). |
+| **Easy** | CRM Ops | Query billing -> Identify duplicate -> Refund $50 API call. | `+0.05` (Base), `+0.05` (Query), `0.6` (Refund), `0.2` (Resolve). |
+| **Medium**| Data Gov | Locate PHI String -> Patch record with `[REDACTED]`. | `+0.05` (Base), `+0.05` (Query), `0.6` (Patch), `0.2` (Resolve). |
+| **Hard** | FinOps | Analyze Fleet -> Detect `0%` CPU node -> `terminate_node("node-2")`. | `+0.05` (Base), `+0.05` (Analyze), `0.6` (Terminate), `0.2` (Resolve). |
 
 ---
 
