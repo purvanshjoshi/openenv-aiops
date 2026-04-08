@@ -1,0 +1,3 @@
+INFO:     Started server process [13384]IINFO:     Waiting for application startup.IINFO:     Application startup complete.IERROR:    [Errno 10048] error while attempting to bind on address ('0.0.0.0', 7860): [winerror 10048] only one usage of each socket address (protocol/network address/port) is normally permitted
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.

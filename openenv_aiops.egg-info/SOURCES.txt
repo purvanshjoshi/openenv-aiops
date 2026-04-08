@@ -1,0 +1,9 @@
+README.md
+pyproject.toml
+openenv_aiops.egg-info/PKG-INFO
+openenv_aiops.egg-info/SOURCES.txt
+openenv_aiops.egg-info/dependency_links.txt
+openenv_aiops.egg-info/entry_points.txt
+openenv_aiops.egg-info/requires.txt
+openenv_aiops.egg-info/top_level.txt
+server/app.py
