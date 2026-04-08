@@ -2,12 +2,13 @@ from typing import Tuple, Dict, Any, Optional
 from models import AIOpsAction, AIOpsObservation
 from openenv.core.env_server.interfaces import Environment
 
-class AIOpsEnv(Environment):
-    _task_name = "easy"
-    _db_patched = False
-    _instance_terminated = False
-    _refund_issued = False
+# Global state persistence for stateless environments
+_LAST_TASK = "easy"
+_DB_PATCHED = False
+_INST_TERM = False
+_REFUND_DONE = False
 
+class AIOpsEnv(Environment):
     def __init__(self):
         self._current_obs = AIOpsObservation()
         self._step_count = 0
@@ -16,13 +17,16 @@ class AIOpsEnv(Environment):
         self._total_reward = 0.0
 
     def reset(self, task_name: str = "easy", **kwargs) -> AIOpsObservation:
-        AIOpsEnv._task_name = task_name.lower()
+        global _LAST_TASK, _DB_PATCHED, _INST_TERM, _REFUND_DONE
+        _LAST_TASK = task_name.lower()
         self._step_count = 0
         self._done = False
-        AIOpsEnv._db_patched = False
-        AIOpsEnv._instance_terminated = False
-        AIOpsEnv._refund_issued = False
+        _DB_PATCHED = False
+        _INST_TERM = False
+        _REFUND_DONE = False
         self._total_reward = 0.05
+        
+        print(f"DEBUG: Reset task to {_LAST_TASK}")
         
         self._current_obs = AIOpsObservation(
             system_health_score=100.0,
@@ -31,11 +35,11 @@ class AIOpsEnv(Environment):
             reward=0.05
         )
 
-        if "easy" in AIOpsEnv._task_name:
+        if "easy" in _LAST_TASK:
             self._current_obs.incident_id = "INC-101"
             self._current_obs.incident_severity = "P3"
             self._current_obs.incident_description = "Customer Ticket: 'I was billed twice for my plan this month. Please refund the duplicate $50 immediately.'"
-        elif "medium" in AIOpsEnv._task_name:
+        elif "medium" in _LAST_TASK:
             self._current_obs.incident_id = "INC-202"
             self._current_obs.incident_severity = "P2"
             self._current_obs.incident_description = "Compliance Alert: PII leaked in record #999. Redact the patient name and SSN immediately by updating the record."
@@ -60,30 +64,33 @@ class AIOpsEnv(Environment):
         cmd = action.command.lower()
         args = action.parameters
 
+        global _DB_PATCHED, _INST_TERM, _REFUND_DONE
+        print(f"DEBUG Step: task={_LAST_TASK} cmd={cmd}")
+        
         # Easy Task: Billing
-        if "easy" in AIOpsEnv._task_name:
+        if "easy" in _LAST_TASK:
             if cmd == "query_billing":
                 output = '{"customer_id": "CUST-001", "transactions": [{"id": 1, "amt": 50}, {"id": 2, "amt": 50}], "status": "duplicate_detected"}'
                 reward = 0.05
             elif cmd == "refund":
                 if args.get("amount") == 50 or args.get("amount") == 50.0:
                     output = '{"status": "success", "msg": "$50 refunded."}'
-                    if not AIOpsEnv._refund_issued:
+                    if not _REFUND_DONE:
                         reward = 0.6
-                        AIOpsEnv._refund_issued = True
+                        _REFUND_DONE = True
                 else:
                     output = '{"status": "error", "msg": "Incorrect refund amount."}'
                     reward = 0.0
             elif cmd == "resolve":
                 output = "Ticket closed."
                 self._done = True
-                if AIOpsEnv._refund_issued:
+                if _REFUND_DONE:
                     reward = 0.2
                 else:
                     reward = 0.0
 
         # Medium Task: Compliance
-        elif "medium" in AIOpsEnv._task_name:
+        elif "medium" in _LAST_TASK:
             if cmd == "query_data":
                 output = '{"record_id": 999, "data": "Patient John Doe (SSN: 000-11-2222) arrived at 9AM."}'
                 reward = 0.05
@@ -91,16 +98,16 @@ class AIOpsEnv(Environment):
                 data = str(args.get("data", ""))
                 output = f"Record 999 updated with: {data}"
                 if "[REDACTED]" in data and "John Doe" not in data and "000-11-2222" not in data:
-                    if not AIOpsEnv._db_patched:
+                    if not _DB_PATCHED:
                         reward = 0.6
-                        AIOpsEnv._db_patched = True
+                        _DB_PATCHED = True
                 elif "John Doe" in data or "000" in data:
                     output += "\nWARNING: PII still detected!"
                     reward = 0.0
             elif cmd == "resolve":
                 output = "Ticket closed."
                 self._done = True
-                if AIOpsEnv._db_patched:
+                if _DB_PATCHED:
                     reward = 0.2
                 else:
                     reward = 0.0
@@ -114,9 +121,9 @@ class AIOpsEnv(Environment):
                 node_id = args.get("node_id")
                 if node_id == "node-2":
                     output = "Successfully terminated zombie node-2. Saved $500/mo."
-                    if not AIOpsEnv._instance_terminated:
+                    if not _INST_TERM:
                         reward = 0.6
-                        AIOpsEnv._instance_terminated = True
+                        _INST_TERM = True
                 elif node_id == "node-1":
                     output = "CRITICAL: Terminated production node! Outage detected!"
                     reward = 0.0
@@ -127,7 +134,7 @@ class AIOpsEnv(Environment):
             elif cmd == "resolve":
                 output = "Ticket closed."
                 self._done = True
-                if AIOpsEnv._instance_terminated:
+                if _INST_TERM:
                     reward = 0.2
                 else:
                     reward = 0.0
