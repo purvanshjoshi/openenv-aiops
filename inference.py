@@ -12,18 +12,18 @@ HF_TOKEN = os.getenv("HF_TOKEN", "dummy-token")
 client = OpenAI(base_url=API_BASE_URL, api_key=HF_TOKEN)
 
 def log_start(task: str, env: str, model: str):
-    print(f"[START] task={task} env={env} model={model}")
+    print(f"[START] task={task} env={env} model={model}", flush=True)
 
 def log_step(step: int, action: str, reward: float, done: bool, error: str):
-    done_str = "true" if done else "false"
+    done_str = str(done).lower()
     err_str = error if error is not None else "null"
     action_str = action.replace("\n", " ").strip()
-    print(f"[STEP] step={step} action={action_str} reward={reward:.2f} done={done_str} error={err_str}")
+    print(f"[STEP] step={step} action={action_str} reward={reward:.2f} done={done_str} error={err_str}", flush=True)
 
-def log_end(success: bool, steps: int, rewards: list):
-    suc_str = "true" if success else "false"
+def log_end(success: bool, steps: int, score: float, rewards: list):
+    suc_str = str(success).lower()
     rews = ",".join([f"{r:.2f}" for r in rewards])
-    print(f"[END] success={suc_str} steps={steps} rewards={rews}")
+    print(f"[END] success={suc_str} steps={steps} score={score:.3f} rewards={rews}", flush=True)
 
 SYSTEM_PROMPT = """You are an AIOps SRE Agent. 
 You must output exactly ONE JSON action per turn.
@@ -80,8 +80,10 @@ def run_task(task_name: str):
             break
             
     score = sum(rewards)
-    success = score > 0.0
-    log_end(success=success, steps=steps_taken, rewards=rewards)
+    # Clamp score to exactly [0, 1] as required by metadata
+    score = min(max(score, 0.0), 1.0)
+    success = score >= 0.1 # Threshold for success
+    log_end(success=success, steps=steps_taken, score=score, rewards=rewards)
 
 if __name__ == "__main__":
     for task in ["easy", "medium", "hard"]:
