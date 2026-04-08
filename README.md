@@ -44,11 +44,14 @@ This repository strictly implements the **OpenEnv (`openenv-core`) Protocol**, d
 
 Unlike heuristic string-matching or unpredictable LLM-as-a-Judge evaluations, this environment utilizes programmatic grading schemas. Agents earn fractional rewards (`0.0 - 1.0` range bounds) for progressive actions and hard penalties (`-1.0`) for catastrophic operational failures.
 
-| Difficulty | Task Domain | Objective | Reward Schema |
+| Difficulty | Task Domain | Objective | Reward Schema (Cumulative Max: 0.95) |
 | :--- | :--- | :--- | :--- |
-| **Easy** | CRM Ops | Query billing -> Identify duplicate -> Refund $50 API call. | `+0.05` (Base), `+0.05` (Query), `0.6` (Refund), `0.2` (Resolve). |
-| **Medium**| Data Gov | Locate PHI String -> Patch record with `[REDACTED]`. | `+0.05` (Base), `+0.05` (Query), `0.6` (Patch), `0.2` (Resolve). |
-| **Hard** | FinOps | Analyze Fleet -> Detect `0%` CPU node -> `terminate_node("node-2")`. | `+0.05` (Base), `+0.05` (Analyze), `0.6` (Terminate), `0.2` (Resolve). |
+| **Easy** | CRM Ops | Query billing -> Identify duplicate -> Refund $50 API call. | `+0.05` (Reset), `+0.05` (Query), `+0.60` (Action), `+0.20` (Resolve) |
+| **Medium**| Data Gov | Locate PHI String -> Patch record with `[REDACTED]`. | `+0.05` (Reset), `+0.05` (Query), `+0.60` (Action), `+0.20` (Resolve) |
+| **Hard** | FinOps | Analyze Fleet -> Detect `0%` CPU node -> `terminate_node("node-2")`. | `+0.05` (Reset), `+0.05` (Analyze), `+0.60` (Action), `+0.20` (Resolve) |
+
+> [!IMPORTANT]
+> **Reward Range Compliance (0, 1):** This environment implements a hard **Safety Floor** of `+0.01` for any valid step and a **Global Safety Cap** of `0.95`. This ensures all task scores fall strictly between 0 and 1, regardless of agent failure or perfect execution.
 
 ---
 
