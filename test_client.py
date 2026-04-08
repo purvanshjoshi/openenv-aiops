@@ -14,13 +14,13 @@ def test_medium():
     res = s.post(f"{BASE_URL}/reset", json={"task_name": "medium"})
     data = res.json()
     total_reward = data.get("reward", 0.0)
-    print(f"[Reset Reward]: {total_reward}")
+    print(f"[Reset Reward]: {total_reward} (Expected: 0.0)")
     
     print("\n[Client] Sending POST /step (query_data)")
     res = s.post(f"{BASE_URL}/step", json={"action": {"command": "query_data", "parameters": {}}})
     step1 = res.json()
     total_reward += step1.get("reward", 0.0)
-    print(f"[Step 1 Reward]: {step1.get('reward')} | Cumulative: {total_reward:.2f}")
+    print(f"[Step 1 Reward]: {step1.get('reward')} | Cumulative: {total_reward:.2f} (Expected: 0.15 [0.10 participation + 0.05 query])")
     
     print("\n[Client] Sending POST /step (patch_data -> anonymize PII)")
     res = s.post(f"{BASE_URL}/step", json={"action": {"command": "patch_data", "parameters": {"data": "Patient [REDACTED] arrived at 9AM."}}})
@@ -32,7 +32,7 @@ def test_medium():
     res = s.post(f"{BASE_URL}/step", json={"action": {"command": "resolve", "parameters": {}}})
     step3 = res.json()
     total_reward += step3.get("reward", 0.0)
-    print(f"[Step 3 Reward]: {step3.get('reward')} | Total Score: {total_reward:.2f}")
+    print(f"[Step 3 Reward]: {step3.get('reward')} | Total Score: {total_reward:.2f} (Expected: ~0.90)")
 
 def test_hard():
     print(f"\n{'='*50}\n--- Simulating Agent solving 'Hard' Task ---\n{'='*50}")

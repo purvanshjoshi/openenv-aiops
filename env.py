@@ -24,13 +24,14 @@ class AIOpsEnv(Environment):
         _DB_PATCHED = False
         _INST_TERM = False
         _REFUND_DONE = False
-        _CUMULATIVE_REWARD = 0.05 # Initial score for just showing up
+        _CUMULATIVE_REWARD = 0.0 # Standard: No rewards before the first action
         
         self._current_obs = AIOpsObservation(
             system_health_score=100.0,
             budget_remaining=10000.0,
             telemetry_output="Environment Initialized. Waiting for first tool execution.",
-            reward=0.05
+            reward=0.0,
+            done=False
         )
 
         if "easy" in _LAST_TASK:
@@ -51,6 +52,11 @@ class AIOpsEnv(Environment):
     def state(self) -> AIOpsObservation:
         return self._current_obs
 
+    def get_reward(self) -> float:
+        """Official method to retrieve the total task score."""
+        global _CUMULATIVE_REWARD
+        return float(_CUMULATIVE_REWARD)
+
     def close(self):
         self._done = True
 
@@ -62,7 +68,11 @@ class AIOpsEnv(Environment):
         cmd = action.command.lower()
         args = action.parameters
 
-        global _DB_PATCHED, _INST_TERM, _REFUND_DONE
+        global _DB_PATCHED, _INST_TERM, _REFUND_DONE, _CUMULATIVE_REWARD
+        
+        # Participation Bonus (on the very first step of the episode)
+        if self._step_count == 1:
+            reward += 0.10
         
         # Easy Task: Billing
         if "easy" in _LAST_TASK:
@@ -136,15 +146,15 @@ class AIOpsEnv(Environment):
                 else:
                     reward = 0.01
 
-        # SAFETY: Safety Floor and Hard Cap at 0.95
-        global _CUMULATIVE_REWARD
-        # 1. We ALWAYS award at least 0.01 per step to ensure strictly > 0
+        # SAFETY: Hard floor and Hard Cap
+        # 1. We ALWAYS award at least 0.01 per step (above logic handles first step bonus)
         if reward < 0.01:
             reward = 0.01
         
-        # 2. We CLAMP the total score to never exceed 0.95
-        if _CUMULATIVE_REWARD + reward > 0.95:
-            reward = max(0.01, 0.95 - _CUMULATIVE_REWARD)
+        # 2. We CLAMP the total score to strictly stay in (0, 1) range
+        # Start at 0.10, end no higher than 0.90
+        if _CUMULATIVE_REWARD + reward > 0.90:
+            reward = max(0.01, 0.90 - _CUMULATIVE_REWARD)
             
         _CUMULATIVE_REWARD += reward
         

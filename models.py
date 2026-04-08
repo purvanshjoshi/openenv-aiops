@@ -19,3 +19,5 @@ class AIOpsObservation(Observation):
     telemetry_output: str = Field("", description="JSON output of the last command executed")
     system_health_score: float = Field(100.0, description="Overall health metric (100 is best)")
     budget_remaining: float = Field(10000.0, description="Available budget. Goes down based on cloud waste.")
+    reward: float = Field(0.0, description="The reward for the latest step")
+    done: bool = Field(False, description="Whether the episode is complete")
