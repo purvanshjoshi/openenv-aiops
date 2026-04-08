@@ -7,6 +7,7 @@ _LAST_TASK = "easy"
 _DB_PATCHED = False
 _INST_TERM = False
 _REFUND_DONE = False
+_CUMULATIVE_REWARD = 0.00 # Track total score in the episode
 
 class AIOpsEnv(Environment):
     def __init__(self):
@@ -14,17 +15,16 @@ class AIOpsEnv(Environment):
         self._step_count = 0
         self._max_steps = 10
         self._done = False
-        self._total_reward = 0.0
 
     def reset(self, task_name: str = "easy", **kwargs) -> AIOpsObservation:
-        global _LAST_TASK, _DB_PATCHED, _INST_TERM, _REFUND_DONE
+        global _LAST_TASK, _DB_PATCHED, _INST_TERM, _REFUND_DONE, _CUMULATIVE_REWARD
         _LAST_TASK = task_name.lower()
         self._step_count = 0
         self._done = False
         _DB_PATCHED = False
         _INST_TERM = False
         _REFUND_DONE = False
-        self._total_reward = 0.05
+        _CUMULATIVE_REWARD = 0.05 # Initial score for just showing up
         
         self._current_obs = AIOpsObservation(
             system_health_score=100.0,
@@ -132,16 +132,27 @@ class AIOpsEnv(Environment):
                 output = "Ticket closed."
                 self._done = True
                 if _INST_TERM:
-                    reward = 0.2
+                    reward = 0.20
                 else:
-                    reward = 0.0
+                    reward = 0.01
 
+        # SAFETY: Safety Floor and Hard Cap at 0.95
+        global _CUMULATIVE_REWARD
+        # 1. We ALWAYS award at least 0.01 per step to ensure strictly > 0
+        if reward < 0.01:
+            reward = 0.01
+        
+        # 2. We CLAMP the total score to never exceed 0.95
+        if _CUMULATIVE_REWARD + reward > 0.95:
+            reward = max(0.01, 0.95 - _CUMULATIVE_REWARD)
+            
+        _CUMULATIVE_REWARD += reward
+        
         if self._step_count >= self._max_steps and not self._done:
             self._done = True
             output += "\nMax steps reached."
 
         self._current_obs.telemetry_output = output
-        self._total_reward += reward
         self._current_obs.reward = reward
         self._current_obs.done = self._done
 
