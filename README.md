@@ -17,7 +17,7 @@ license: mit
 
 ---
 
-## 🎯 The Vision: Beyond "Toy Problems"
+## 🎯 The Vision: Beyond "Toy Problems."
 The Reinforcement Learning ecosystem suffers from an oversaturation of "toy problems" (e.g., Tic-Tac-Toe, Wordle, block-stacking). While these are useful for fundamental agent training, they fail to benchmark an LLM's capacity in high-stakes, real-world enterprise environments.
 
 The **Enterprise AIOps Omni-Environment** bridges this gap. It drops the AI agent into the seat of a Tier-3 Site Reliability Engineer (SRE) handling live IT alert tickets.
