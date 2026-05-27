@@ -1,14 +1,4 @@
----
-title: OpenEnv AIOps
-emoji: 🚀
-colorFrom: blue
-colorTo: indigo
-sdk: docker
-pinned: false
-license: mit
----
-
-# 🌐 Enterprise AIOps Omni-Environment
+#  Enterprise AIOps Omni-Environment
 
 [![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/purvansh01/openenv-aiops)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -17,7 +7,7 @@ license: mit
 
 ---
 
-## 🎯 The Vision: Beyond "Toy Problems"
+##  The Vision: Beyond "Toy Problems"
 The Reinforcement Learning ecosystem suffers from an oversaturation of "toy problems" (e.g., Tic-Tac-Toe, Wordle, block-stacking). While these are useful for fundamental agent training, they fail to benchmark an LLM's capacity in high-stakes, real-world enterprise environments.
 
 The **Enterprise AIOps Omni-Environment** bridges this gap. It drops the AI agent into the seat of a Tier-3 Site Reliability Engineer (SRE) handling live IT alert tickets.
@@ -29,7 +19,7 @@ The **Enterprise AIOps Omni-Environment** bridges this gap. It drops the AI agen
 
 ---
 
-## 🏗️ OpenEnv Architecture
+##  OpenEnv Architecture
 
 This repository strictly implements the **OpenEnv (`openenv-core`) Protocol**, deploying a lightweight, standalone `FastAPI` instance fully containerized for Hugging Face Spaces.
 
@@ -40,7 +30,7 @@ This repository strictly implements the **OpenEnv (`openenv-core`) Protocol**, d
 
 ---
 
-## 🚀 Tasks & Deterministic Grading
+##  Tasks & Deterministic Grading
 
 Unlike heuristic string-matching or unpredictable LLM-as-a-Judge evaluations, this environment utilizes programmatic grading schemas. Agents earn fractional rewards (`0.0 - 1.0` range bounds) for progressive actions and hard penalties (`-1.0`) for catastrophic operational failures.
 
@@ -55,11 +45,11 @@ Unlike heuristic string-matching or unpredictable LLM-as-a-Judge evaluations, th
 
 ---
 
-## 🧠 Systems Architecture Flow
+##  Systems Architecture Flow
 
 ```mermaid
 graph TD
-    A["🤖 LLM / Autonomous Agent"] -- "POST /reset" --> B["FastAPI Environment App"]
+    A[" LLM / Autonomous Agent"] -- "POST /reset" --> B["FastAPI Environment App"]
     A -- "POST /step (AIOpsAction)" --> B
     B --> C{"OpenEnv Validations"}
     C --> D["Task Routing Engine"]
@@ -82,7 +72,7 @@ graph TD
 
 The environment validates autonomously over live deployments. Below are partial outputs proving the deterministic reward distribution matching the evaluation requirements. 
 
-### ▶️ Easy (CRM Refund)
+###  Easy (CRM Refund)
 ```text
 [Client] Sending POST /reset (Task: 'easy')
 [Server Response] Incident: "Customer Ticket: 'I was billed twice for my plan this month. Please refund the duplicate $50 immediately.'"
@@ -97,7 +87,7 @@ The environment validates autonomously over live deployments. Below are partial 
 [Server Reward]: +0.2 | Done: True
 ```
 
-### ▶️ Medium (PII Redaction)
+###  Medium (PII Redaction)
 ```text
 [Client] Sending POST /reset (Task: 'medium')
 [Server Response] Incident: "Compliance Alert: PII leaked in record. Redact patient name and SSN."
@@ -112,7 +102,7 @@ The environment validates autonomously over live deployments. Below are partial 
 [Server Reward]: +0.2 | Done: True
 ```
 
-### ▶️ Hard (FinOps zombie node termination)
+###  Hard (FinOps zombie node termination)
 ```text
 [Client] Sending POST /reset (Task: 'hard')
 [Server Response] Incident: "FinOps Alert: Burn rate exceeded 90%. Identify completely idle 'zombie' nodes in compute cluster and terminate them."
@@ -129,7 +119,7 @@ The environment validates autonomously over live deployments. Below are partial 
 
 ---
 
-## ⚙️ Submission Toolkit
+##  Submission Toolkit
 
 ### Evaluation Script
 The root contains the `inference.py` evaluator baseline. It is mapped to automatically orchestrate across the agent objectives using `OpenAI` client tools.
